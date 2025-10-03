@@ -11,6 +11,7 @@ import { ProfilePage } from "./pages/profile-page";
 import { ProtectedPage } from "./pages/protected-page";
 import { PublicPage } from "./pages/public-page";
 import { CalendarPage} from "./pages/calendar-page";
+import { EventsPage } from "./pages/events-page";
 
 export const App = () => {
   const { isLoading } = useAuth0();
@@ -38,6 +39,10 @@ export const App = () => {
       <Route
         path="/calendar"
         element={<AuthenticationGuard component={CalendarPage} />}
+      />
+      <Route
+        path="/events"
+        element={<AuthenticationGuard component={EventsPage} />}
       />
       <Route
         path="/admin"
