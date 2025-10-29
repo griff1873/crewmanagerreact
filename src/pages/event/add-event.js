@@ -3,27 +3,19 @@ import { useAuth0 } from "@auth0/auth0-react"
 import AddEvent from "../components/events/add-event"
 import {FaTrashAlt, FaCalendarPlus, FaPenSquare, FaUserPlus, FaUserMinus} from "react-icons/fa"
 import { PageLayout } from "../components/page-layout";
-import { EventSchema, EventsResponseSchema } from "../schema/eventschema";
-import { useAuth0Api } from "../services/auth0-api";
+import { EventSchema } from "../schema/eventschema";
 
-const Content = ({ items, handleUserAdd, handleUserRemove, handleEdit, handleDelete, loading, error, pagination }) => {
+const Content = ({ items, handleUserAdd, handleUserRemove, handleEdit, handleDelete, loading, error }) => {
   if (loading) return <div>Loading events...</div>;
   if (error) return <div>Error loading events: {error}</div>;
 
   return (
     <div>
-        {pagination && (
-          <div className="pagination-info">
-            <p>Showing {items.length} of {pagination.totalCount} events (Page {pagination.page} of {pagination.totalPages})</p>
-          </div>
-        )}
         <ul>
             {items.map((item) => (
                 <li className="item" key={item.id}>
-                <label>{item.name}</label>
-                <label>{new Date(item.startDate).toLocaleDateString()}</label>
-                <label>{item.location}</label>
-                <label>{item.minCrew}-{item.desiredCrew}-{item.maxCrew} crew</label>
+                <label>{item.name || item.title}</label>
+                <label>{new Date(item.startDate || item.date).toLocaleDateString()}</label>
                 <div>
                     <FaUserPlus 
                         size={24}
@@ -58,13 +50,12 @@ const Content = ({ items, handleUserAdd, handleUserRemove, handleEdit, handleDel
 };
 
 export const EventsPage = () => {
-  const { isAuthenticated, isLoading: authLoading } = useAuth0();
-  const { get, post, delete: del, isAuthenticated: apiIsAuthenticated } = useAuth0Api();
+  const { getAccessTokenSilently, isAuthenticated, isLoading: authLoading } = useAuth0();
   const [items, setItems] = useState([]);
-  const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Initialize with today's date
   const today = new Date().toISOString().split('T')[0];
   const [newEvent, setNewEvent] = useState({ 
     title: "", 
@@ -72,6 +63,26 @@ export const EventsPage = () => {
     time: "", 
     description: "" 
   });
+
+  // Helper function to get authenticated headers
+  const getAuthHeaders = async () => {
+    try {
+      const token = await getAccessTokenSilently({
+        authorizationParams: {
+          audience: process.env.REACT_APP_AUTH0_AUDIENCE,
+          scope: "read:events write:events delete:events"
+        }
+      });
+      
+      return {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+    } catch (error) {
+      console.error('Error getting access token:', error);
+      throw error;
+    }
+  };
 
   // Fetch events from API
   useEffect(() => {
@@ -86,118 +97,98 @@ export const EventsPage = () => {
         setLoading(true);
         setError(null);
         
-        const response = await get(`${process.env.REACT_APP_API_BASE_URL}/events`);
+        const headers = await getAuthHeaders();
+        const response = await fetch('http://localhost:5262/api/Events', {
+          headers
+        });
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log('Raw API response:', data);
         
-        // Validate the full response structure
-        try {
-          const validatedResponse = EventsResponseSchema.parse(data);
-          console.log('Response validation successful');
-          
-          // Validate each individual event
-          const validatedEvents = [];
-          const validationErrors = [];
-          
-          validatedResponse.events.forEach((event, index) => {
-            try {
-              const validatedEvent = EventSchema.parse(event);
-              validatedEvents.push(validatedEvent);
-            } catch (validationError) {
-              console.warn(`Event ${index} failed individual validation:`, validationError.errors);
-              validationErrors.push({
-                event,
-                errors: validationError.errors
-              });
-              
-              // Still include the event for display
-              validatedEvents.push({
-                ...event,
-                isValid: false,
-                validationErrors: validationError.errors
-              });
-            }
-          });
-          
-          setItems(validatedEvents);
-          setPagination(validatedResponse.pagination);
-          
-          if (validationErrors.length > 0) {
-            console.warn(`${validationErrors.length} events had validation issues:`, validationErrors);
+        // Validate each event against the schema
+        const validatedEvents = [];
+        const validationErrors = [];
+        
+        data.forEach((event, index) => {
+          try {
+            const validatedEvent = EventSchema.parse(event);
+            validatedEvents.push(validatedEvent);
+          } catch (validationError) {
+            console.warn(`Event ${index} failed validation:`, validationError.errors);
+            validationErrors.push({
+              event,
+              errors: validationError.errors
+            });
+            // Optionally include invalid events with a flag
+            validatedEvents.push({
+              ...event,
+              isValid: false,
+              validationErrors: validationError.errors
+            });
           }
-          
-        } catch (responseValidationError) {
-          console.error('Response structure validation failed:', responseValidationError.errors);
-          
-          // Fallback: try to extract events array manually
-          if (data.events && Array.isArray(data.events)) {
-            setItems(data.events);
-            setPagination(data.pagination || null);
-          } else {
-            throw new Error('Invalid response structure');
-          }
+        });
+        
+        if (validationErrors.length > 0) {
+          console.warn('Some events failed validation:', validationErrors);
         }
         
+        setItems(validatedEvents);
       } catch (err) {
         console.error('Error fetching events:', err);
         setError(err.message);
-        setItems([]);
-        setPagination(null);
+        // Fallback to mock data if API fails
+        setItems([
+          { id: 1, title: "Event 1", date: "2024-07-01" },
+          { id: 2, title: "Event 2", date: "2024-07-05" },
+          { id: 3, title: "Event 3", date: "2024-07-10" },
+        ]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchEvents();
-  }, [isAuthenticated, authLoading, get]);
+  }, [isAuthenticated, authLoading, getAccessTokenSilently]);
 
   const handleUserAdd = (id) => {
-      alert(`Add user to event ${id}`);
+      alert(`Add user to ${id}`);
   };      
   const handleUserRemove = (id) => {
-      alert(`Remove user from event ${id}`);
+      alert(`Remove user from ${id}`);
   };      
   const handleEdit = (id) => {
-      alert(`Edit event ${id}`);
+      alert(`Edit ${id}`);
   };      
-  
   const handleDelete = async (id) => {
-      if (!apiIsAuthenticated) {
+      if (!isAuthenticated) {
         alert('Please log in to delete events');
         return;
       }
 
+      // Store original items before any changes
       const originalItems = [...items];
-      const originalPagination = pagination;
 
       try {
+               
         // Optimistically update UI
         setItems(items.filter(item => item.id !== id));
         
-        const response = await del(`${process.env.REACT_APP_API_BASE_URL}/events/${id}`);
+        const headers = await getAuthHeaders();
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/Events/${id}`, {
+          method: 'DELETE',
+          headers
+        });
         
         if (!response.ok) {
           throw new Error('Failed to delete event');
         }
-        
-        // Update pagination count
-        if (pagination) {
-          setPagination({
-            ...pagination,
-            totalCount: pagination.totalCount - 1
-          });
-        }
-        
       } catch (err) {
         console.error('Error deleting event:', err);
-        // Revert optimistic updates
+        // Revert the optimistic update on error
         setItems(originalItems);
-        setPagination(originalPagination);
         setError(err.message);
       }
   };
@@ -205,7 +196,7 @@ export const EventsPage = () => {
   const handleSubmit = async (e) => {
       e.preventDefault();
       
-      if (!apiIsAuthenticated) {
+      if (!isAuthenticated) {
         alert('Please log in to add events');
         return;
       }
@@ -214,41 +205,29 @@ export const EventsPage = () => {
         if (newEvent.title && newEvent.date && newEvent.time) {
           const eventToAdd = { 
             name: newEvent.title, 
-            startDate: `${newEvent.date}T${newEvent.time}:00.000Z`,
-            endDate: `${newEvent.date}T${newEvent.time}:00.000Z`,
-            location: "TBD",
+            startDate: `${newEvent.date}T${newEvent.time}:00`,
+            endDate: `${newEvent.date}T${newEvent.time}:00`, // You may want to add end time input
+            location: "TBD", // You may want to add location input
             description: newEvent.description,
             minCrew: 1,
             maxCrew: 10,
             desiredCrew: 5
           };
           
-          const response = await post(`${process.env.REACT_APP_API_BASE_URL}/events`, eventToAdd);
+          const headers = await getAuthHeaders();
+          const response = await fetch('http://localhost:5262/api/Events', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(eventToAdd)
+          });
           
           if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Failed to create event: ${errorText}`);
+            throw new Error('Failed to create event');
           }
           
           const createdEvent = await response.json();
-          
-          // Validate the created event
-          try {
-            const validatedCreatedEvent = EventSchema.parse(createdEvent);
-            setItems([...items, validatedCreatedEvent]);
-            setNewEvent({ title: "", date: today, time: "", description: "" });
-            
-            // Update pagination
-            if (pagination) {
-              setPagination({
-                ...pagination,
-                totalCount: pagination.totalCount + 1
-              });
-            }
-          } catch (validationError) {
-            console.warn('Created event failed validation:', validationError.errors);
-            setItems([...items, { ...createdEvent, isValid: false }]);
-          }
+          setItems([...items, createdEvent]);
+          setNewEvent({ title: "", date: today, time: "", description: "" });
         }
       } catch (err) {
         console.error('Error adding event:', err);
@@ -290,7 +269,6 @@ export const EventsPage = () => {
               handleDelete={handleDelete}
               loading={loading}
               error={error}
-              pagination={pagination}
             />
         </div>
     </PageLayout>
