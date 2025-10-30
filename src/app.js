@@ -1,26 +1,35 @@
-import { useAuth0 } from "@auth0/auth0-react";
-import React from "react";
 import { Route, Routes } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
+
 import { PageLoader } from "./components/page-loader";
 import { AuthenticationGuard } from "./components/authentication-guard";
-import { AdminPage } from "./pages/admin-page";
-import { CallbackPage } from "./pages/callback-page";
 import { HomePage } from "./pages/home-page";
-import { NotFoundPage } from "./pages/not-found-page";
+import { CalendarPage } from "./pages/calendar-page";
 import { ProfilePage } from "./pages/profile-page";
-import { ProtectedPage } from "./pages/protected-page";
-import { PublicPage } from "./pages/public-page";
-import { CalendarPage} from "./pages/calendar-page";
 import { EventsPage } from "./pages/events-page";
+import { CallbackPage } from "./pages/callback-page";
+import { NotFoundPage } from "./pages/not-found-page";
+import { ProfileProvider, useProfile } from "./contexts/ProfileContext";
 
-export const App = () => {
-  const { isLoading } = useAuth0();
+import "./app.css";
 
-  if (isLoading) {
+const AuthenticatedApp = () => {
+  const { profileLoading, profileError, hasProfile, hasChecked } = useProfile();
+
+  // Show loading while checking profile
+  if (profileLoading) {
     return (
       <div className="page-layout">
         <PageLoader />
+        <div>Loading profile...</div>
       </div>
+    );
+  }
+
+  // Show error if there's a server error but still allow navigation
+  if (profileError && profileError.includes("500")) {
+    console.warn(
+      "Profile check failed with server error, but allowing app to continue"
     );
   }
 
@@ -31,25 +40,44 @@ export const App = () => {
         path="/profile"
         element={<AuthenticationGuard component={ProfilePage} />}
       />
-      <Route path="/public" element={<PublicPage />} />
-      <Route
-        path="/protected"
-        element={<AuthenticationGuard component={ProtectedPage} />}
-      />
-      <Route
-        path="/calendar"
-        element={<AuthenticationGuard component={CalendarPage} />}
-      />
       <Route
         path="/events"
         element={<AuthenticationGuard component={EventsPage} />}
       />
       <Route
-        path="/admin"
-        element={<AuthenticationGuard component={AdminPage} />}
+        path="/calendar"
+        element={<AuthenticationGuard component={CalendarPage} />}
       />
       <Route path="/callback" element={<CallbackPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
+};
+
+const AppWithProfile = () => {
+  const { isLoading, isAuthenticated } = useAuth0();
+
+  if (isLoading) {
+    return (
+      <div className="page-layout">
+        <PageLoader />
+      </div>
+    );
+  }
+
+  return isAuthenticated ? (
+    <ProfileProvider>
+      <AuthenticatedApp />
+    </ProfileProvider>
+  ) : (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/callback" element={<CallbackPage />} />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
+};
+
+export const App = () => {
+  return <AppWithProfile />;
 };

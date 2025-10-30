@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useAuth0 } from "@auth0/auth0-react"
 import AddEvent from "../components/events/add-event"
 import {FaTrashAlt, FaCalendarPlus, FaPenSquare, FaUserPlus, FaUserMinus} from "react-icons/fa"
 import { PageLayout } from "../components/page-layout";
-import { EventSchema, EventsResponseSchema } from "../schema/eventschema";
-import { useAuth0Api } from "../services/auth0-api";
+import { useEventService } from "../services/event-service";
+import { useProfile } from "../contexts/ProfileContext";
 
 const Content = ({ items, handleUserAdd, handleUserRemove, handleEdit, handleDelete, loading, error, pagination }) => {
   if (loading) return <div>Loading events...</div>;
@@ -59,7 +59,9 @@ const Content = ({ items, handleUserAdd, handleUserRemove, handleEdit, handleDel
 
 export const EventsPage = () => {
   const { isAuthenticated, isLoading: authLoading } = useAuth0();
-  const { get, post, delete: del, isAuthenticated: apiIsAuthenticated } = useAuth0Api();
+  const { getAllEvents, createEvent, deleteEvent, isAuthenticated: serviceIsAuthenticated } = useEventService();
+  const { profile, loginId, hasProfile } = useProfile(); // Access profile context
+  
   const [items, setItems] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -73,88 +75,46 @@ export const EventsPage = () => {
     description: "" 
   });
 
+  // Show profile info for debugging
+  useEffect(() => {
+    if (loginId) {
+      console.log('Events page - Current loginId:', loginId);
+      console.log('Events page - Has profile:', hasProfile);
+      console.log('Events page - Profile:', profile);
+    }
+  }, [loginId, hasProfile, profile]);
+
+  // Memoize the fetch function to prevent infinite loops
+  const fetchEvents = useCallback(async () => {
+    // Don't fetch if user is not authenticated
+    if (!isAuthenticated || authLoading) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const result = await getAllEvents();
+      
+      setItems(result.events);
+      setPagination(result.pagination);
+      
+    } catch (err) {
+      console.error('Error fetching events:', err);
+      setError(err.message);
+      setItems([]);
+      setPagination(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [isAuthenticated, authLoading, getAllEvents]);
+
   // Fetch events from API
   useEffect(() => {
-    const fetchEvents = async () => {
-      // Don't fetch if user is not authenticated
-      if (!isAuthenticated || authLoading) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const response = await get(`${process.env.REACT_APP_API_BASE_URL}/events`);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('Raw API response:', data);
-        
-        // Validate the full response structure
-        try {
-          const validatedResponse = EventsResponseSchema.parse(data);
-          console.log('Response validation successful');
-          
-          // Validate each individual event
-          const validatedEvents = [];
-          const validationErrors = [];
-          
-          validatedResponse.events.forEach((event, index) => {
-            try {
-              const validatedEvent = EventSchema.parse(event);
-              validatedEvents.push(validatedEvent);
-            } catch (validationError) {
-              console.warn(`Event ${index} failed individual validation:`, validationError.errors);
-              validationErrors.push({
-                event,
-                errors: validationError.errors
-              });
-              
-              // Still include the event for display
-              validatedEvents.push({
-                ...event,
-                isValid: false,
-                validationErrors: validationError.errors
-              });
-            }
-          });
-          
-          setItems(validatedEvents);
-          setPagination(validatedResponse.pagination);
-          
-          if (validationErrors.length > 0) {
-            console.warn(`${validationErrors.length} events had validation issues:`, validationErrors);
-          }
-          
-        } catch (responseValidationError) {
-          console.error('Response structure validation failed:', responseValidationError.errors);
-          
-          // Fallback: try to extract events array manually
-          if (data.events && Array.isArray(data.events)) {
-            setItems(data.events);
-            setPagination(data.pagination || null);
-          } else {
-            throw new Error('Invalid response structure');
-          }
-        }
-        
-      } catch (err) {
-        console.error('Error fetching events:', err);
-        setError(err.message);
-        setItems([]);
-        setPagination(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchEvents();
-  }, [isAuthenticated, authLoading, get]);
+  }, [fetchEvents]);
 
   const handleUserAdd = (id) => {
       alert(`Add user to event ${id}`);
@@ -167,7 +127,7 @@ export const EventsPage = () => {
   };      
   
   const handleDelete = async (id) => {
-      if (!apiIsAuthenticated) {
+      if (!serviceIsAuthenticated) {
         alert('Please log in to delete events');
         return;
       }
@@ -179,11 +139,7 @@ export const EventsPage = () => {
         // Optimistically update UI
         setItems(items.filter(item => item.id !== id));
         
-        const response = await del(`${process.env.REACT_APP_API_BASE_URL}/events/${id}`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to delete event');
-        }
+        await deleteEvent(id);
         
         // Update pagination count
         if (pagination) {
@@ -205,7 +161,7 @@ export const EventsPage = () => {
   const handleSubmit = async (e) => {
       e.preventDefault();
       
-      if (!apiIsAuthenticated) {
+      if (!serviceIsAuthenticated) {
         alert('Please log in to add events');
         return;
       }
@@ -220,34 +176,21 @@ export const EventsPage = () => {
             description: newEvent.description,
             minCrew: 1,
             maxCrew: 10,
-            desiredCrew: 5
+            desiredCrew: 5,
+            createdBy: loginId // Use loginId from context
           };
           
-          const response = await post(`${process.env.REACT_APP_API_BASE_URL}/events`, eventToAdd);
+          const createdEvent = await createEvent(eventToAdd);
           
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Failed to create event: ${errorText}`);
-          }
+          setItems([...items, createdEvent]);
+          setNewEvent({ title: "", date: today, time: "", description: "" });
           
-          const createdEvent = await response.json();
-          
-          // Validate the created event
-          try {
-            const validatedCreatedEvent = EventSchema.parse(createdEvent);
-            setItems([...items, validatedCreatedEvent]);
-            setNewEvent({ title: "", date: today, time: "", description: "" });
-            
-            // Update pagination
-            if (pagination) {
-              setPagination({
-                ...pagination,
-                totalCount: pagination.totalCount + 1
-              });
-            }
-          } catch (validationError) {
-            console.warn('Created event failed validation:', validationError.errors);
-            setItems([...items, { ...createdEvent, isValid: false }]);
+          // Update pagination
+          if (pagination) {
+            setPagination({
+              ...pagination,
+              totalCount: pagination.totalCount + 1
+            });
           }
         }
       } catch (err) {
