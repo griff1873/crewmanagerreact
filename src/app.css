@@ -1,3 +1,7 @@
+/* ========================================
+   GLOBAL STYLES
+======================================== */
+
 /* Basic app styles */
 .page-layout {
   min-height: 100vh;
@@ -12,6 +16,10 @@
   align-items: center;
   min-height: 200px;
 }
+
+/* ========================================
+   MESSAGING COMPONENTS
+======================================== */
 
 /* Error message styles */
 .error-message {
@@ -33,186 +41,11 @@
   margin: 10px 0;
 }
 
+/* ========================================
+   FORM STYLES
+======================================== */
+
 /* Basic form styles */
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-
-.form-group input,
-.form-group textarea,
-.form-group select {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-/* Button styles */
-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  margin-right: 0.5rem;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-button:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-
-button[type="button"] {
-  background-color: #6c757d;
-}
-
-button[type="button"]:hover {
-  background-color: #545b62;
-}
-
-/* List styles for events */
-.item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
-  background-color: white;
-}
-
-.item label {
-  margin-right: 1rem;
-  font-weight: normal;
-}
-
-.item div {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.item svg {
-  cursor: pointer;
-  color: #6c757d;
-  transition: color 0.2s;
-}
-
-.item svg:hover {
-  color: #007bff;
-}
-
-/* Pagination info */
-.pagination-info {
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-  color: #6c757d;
-}
-
-/* Profile specific styles */
-.profile-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.profile-details {
-  display: flex;
-  gap: 2rem;
-  margin-bottom: 2rem;
-  align-items: flex-start;
-}
-
-.profile-picture {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #007bff;
-}
-
-.profile-info p {
-  margin: 0.5rem 0;
-  font-size: 1.1rem;
-}
-
-.profile-form {
-  max-width: 600px;
-}
-
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .profile-details {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-  
-  .item {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .item label {
-    margin-right: 0;
-  }
-}
-
-/* Utility classes */
-.text-center {
-  text-align: center;
-}
-
-.mb-1 {
-  margin-bottom: 1rem;
-}
-
-.mt-1 {
-  margin-top: 1rem;
-}
-
-.hidden {
-  display: none;
-}
-
-.loading {
-  opacity: 0.6;
-  pointer-events: none;
-}
-/* Add to your app.css file */
-
-/* Profile form specific styles */
-.profile-form {
-  max-width: 600px;
-}
-
 .form-group {
   margin-bottom: 1.5rem;
 }
@@ -225,17 +58,20 @@ button[type="button"]:hover {
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
   transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
   outline: none;
   border-color: #007bff;
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
@@ -268,32 +104,154 @@ button[type="button"]:hover {
   border-top: 1px solid #eee;
 }
 
-.form-actions button[type="submit"] {
+/* ========================================
+   BUTTON STYLES
+======================================== */
+
+button {
   background-color: #007bff;
   color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Button variants */
+button[type="button"] {
+  background-color: #6c757d;
+}
+
+button[type="button"]:hover:not(:disabled) {
+  background-color: #545b62;
+}
+
+.add-boat-btn,
+.add-first-boat-btn {
+  background-color: #28a745;
+}
+
+.add-boat-btn:hover,
+.add-first-boat-btn:hover {
+  background-color: #218838;
+}
+
+.form-actions button[type="submit"] {
+  background-color: #007bff;
 }
 
 .form-actions button[type="submit"]:hover:not(:disabled) {
   background-color: #0056b3;
 }
 
-.form-actions button[type="submit"]:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
+/* ========================================
+   LIST STYLES
+======================================== */
+
+/* Generic list items */
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  background-color: white;
+  transition: box-shadow 0.2s, border-color 0.2s;
 }
 
-.form-actions button[type="button"] {
-  background-color: #6c757d;
-  color: white;
+.item:hover {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border-color: #007bff;
 }
 
-.form-actions button[type="button"]:hover {
-  background-color: #545b62;
+.item label {
+  margin-right: 1rem;
+  font-weight: normal;
 }
 
-/* Profile view styles */
+.item div {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.item svg {
+  cursor: pointer;
+  color: #6c757d;
+  transition: color 0.2s, transform 0.1s;
+  padding: 0.25rem;
+}
+
+.item svg:hover {
+  color: #007bff;
+  transform: scale(1.1);
+}
+
+/* ========================================
+   PAGINATION
+======================================== */
+
+.pagination-info {
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+/* ========================================
+   PROFILE STYLES - CONSISTENT FORM & VIEW
+======================================== */
+
+.profile-container {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  box-sizing: border-box;
+  background-color: inherit; /* Let it inherit from page background */
+}
+.profile-container h3 {
+  margin-bottom: 1.5rem;
+  color:#0056b3;
+}
+
+/* Set consistent width for both form and view */
+.profile-form,
 .profile-view {
   max-width: 800px;
+  width: 100%;
+  margin: 0 auto; /* Center both components */
+}
+
+/* Main content area - same width for both */
+.profile-form-layout,
+.profile-details {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  align-items: flex-start;
+  padding: 2rem;
+  background-color: white; /* Changed from #f8f9fa to white like boats */
+  border: 1px solid #dee2e6; /* Add border like boats */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Add shadow like boats */
+  width: 100%;
+  box-sizing: border-box;
+  transition: box-shadow 0.2s, border-color 0.2s; /* Add transition like boats */
 }
 
 .profile-details {
@@ -302,10 +260,24 @@ button[type="button"]:hover {
   margin-bottom: 2rem;
   align-items: flex-start;
   padding: 2rem;
-  background-color: #f8f9fa;
+  background-color: white;
+  border: 1px solid #dee2e6;
   border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  width: 100%;
+  box-sizing: border-box;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  justify-content: space-between; /* This will push the actions to the right */
 }
 
+/* Add hover effect like boats */
+.profile-form-layout:hover,
+.profile-details:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-color: #007bff;
+}
+
+/* Profile picture - identical styling */
 .profile-picture {
   width: 150px;
   height: 150px;
@@ -315,15 +287,100 @@ button[type="button"]:hover {
   flex-shrink: 0;
 }
 
-.profile-info {
-  flex: 1;
+/* Picture section styling */
+.profile-picture-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0.5rem;
 }
 
+.profile-picture-section .help-text {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #6c757d;
+  max-width: 150px;
+  line-height: 1.3;
+}
+
+/* Content areas - same flex properties */
+.profile-form-fields,
+.profile-info {
+  flex: 1;
+  width: 100%;
+}
+
+/* Make form fields look like view paragraphs */
+.profile-form-fields .form-group {
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.profile-form-fields .form-group:last-child {
+  margin-bottom: 0;
+}
+
+.profile-form-fields label {
+  font-weight: 600;
+  color: #495057; /* Match boats color scheme */
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+  display: inline-block;
+  width: 100px;
+}
+
+.profile-form-fields label::after {
+  content: ":";
+  margin-left: 2px;
+}
+
+/* Style form inputs to look like view paragraphs */
+.profile-form-fields input,
+.profile-form-fields textarea {
+  border: none;
+  border-bottom: 1px solid #dee2e6; /* Match boats border */
+  border-radius: 0;
+  background-color: transparent;
+  padding: 0.5rem 0;
+  font-size: 1.1rem;
+  margin-left: 0.5rem;
+  width: calc(100% - 120px);
+  display: inline-block;
+  vertical-align: top;
+  transition: border-bottom-color 0.2s;
+  box-sizing: border-box;
+  color: #495057; /* Match boats text color */
+}
+
+.profile-form-fields input:focus,
+.profile-form-fields textarea:focus {
+  outline: none;
+  border-bottom-color: #007bff; /* Match boats accent color */
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.profile-form-fields input[readonly] {
+  background-color: transparent;
+  border-bottom-color: #dee2e6;
+  color: #6c757d;
+  cursor: default;
+}
+
+.profile-form-fields textarea {
+  resize: vertical;
+  min-height: 2.2rem;
+  line-height: 1.4;
+}
+
+/* View paragraph styling - only underline the data part */
 .profile-info p {
   margin: 0.75rem 0;
   font-size: 1.1rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  align-items: flex-start;
+  color: #495057; /* Match boat name color */
 }
 
 .profile-info p:last-child {
@@ -331,31 +388,131 @@ button[type="button"]:hover {
 }
 
 .profile-info strong {
-  color: #495057;
+  color: #495057; /* Match boats color scheme */
+  display: inline-block;
+  width: 100px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.profile-data {
+  border-bottom: 1px solid #dee2e6; /* Match boats border color */
+  padding-bottom: 0.5rem;
+  flex: 1;
+  margin-left: 0.5rem;
+  color: #495057; /* Match boats text color */
+}
+
+/* Form field styling to match boats when in edit mode */
+.profile-form-fields label {
+  font-weight: 600;
+  color: #495057; /* Match boats color */
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
   display: inline-block;
   width: 100px;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-  .profile-details {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-  
-  .form-actions {
-    flex-direction: column;
-  }
-  
-  .profile-info strong {
-    width: auto;
-    display: block;
-    margin-bottom: 0.25rem;
-  }
-  /* Add to your app.css file */
+.profile-form-fields input,
+.profile-form-fields textarea {
+  border: none;
+  border-bottom: 1px solid #dee2e6; /* Match boats border */
+  border-radius: 0;
+  background-color: transparent;
+  padding: 0.5rem 0;
+  font-size: 1.1rem;
+  margin-left: 0.5rem;
+  width: calc(100% - 120px);
+  display: inline-block;
+  vertical-align: top;
+  transition: border-bottom-color 0.2s;
+  box-sizing: border-box;
+  color: #495057; /* Match boats text color */
+}
 
-/* Boats section styles */
+.profile-form-fields input:focus,
+.profile-form-fields textarea:focus {
+  outline: none;
+  border-bottom-color: #007bff; /* Match boats accent color */
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Error text styling */
+.error-text {
+  color: #dc3545;
+  font-size: 0.875rem;
+  display: block;
+  margin-top: 0.25rem;
+  margin-left: 120px;
+}
+
+.help-text {
+  color: #6c757d;
+  font-size: 0.875rem;
+  display: block;
+  margin-top: 0.25rem;
+  margin-left: 120px;
+  line-height: 1.3;
+}
+
+/* Form actions - same for both */
+.form-actions {
+  display: flex;
+  align-items: right;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Profile actions styling - similar to boat actions */
+.profile-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+/* Error state styling */
+.profile-form-fields input.error,
+.profile-form-fields textarea.error {
+  border-bottom-color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.05);
+}
+
+/* Save icon styling */
+.save-icon {
+  color: #6c757d;
+}
+
+.save-icon:hover:not(.disabled) {
+  color: #28a745;
+  transform: scale(1.1);
+}
+
+.save-icon.disabled {
+  color: #adb5bd;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Cancel icon styling */
+.cancel-icon {
+  color: #6c757d;
+}
+
+.cancel-icon:hover {
+  color: #dc3545;
+  transform: scale(1.1);
+}
+
+/* ========================================
+   BOATS STYLES
+======================================== */
+
 .boats-section {
   margin-top: 3rem;
   padding-top: 2rem;
@@ -367,32 +524,15 @@ button[type="button"]:hover {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  
 }
 
 .boats-header h3 {
   margin: 0;
-  color: #495057;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.add-boat-btn {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background-color 0.2s;
-}
-
-.add-boat-btn:hover {
-  background-color: #218838;
+  color:#0056b3;
 }
 
 .boats-loading {
@@ -400,6 +540,19 @@ button[type="button"]:hover {
   text-align: center;
   color: #6c757d;
   font-style: italic;
+  position: relative;
+}
+
+.boats-loading::after {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 0.5rem;
 }
 
 .no-boats {
@@ -419,21 +572,6 @@ button[type="button"]:hover {
   color: #6c757d;
   font-size: 1.1rem;
   margin-bottom: 1.5rem;
-}
-
-.add-first-boat-btn {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.2s;
-}
-
-.add-first-boat-btn:hover {
-  background-color: #0056b3;
 }
 
 .boats-list {
@@ -535,8 +673,96 @@ button[type="button"]:hover {
   color: #dc3545;
 }
 
-/* Responsive design for boats */
+/* Save icon styling */
+.save-icon {
+  color: #6c757d;
+}
+
+.save-icon:hover:not(.disabled) {
+  color: #28a745;
+  transform: scale(1.1);
+}
+
+.save-icon.disabled {
+  color: #adb5bd;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Cancel icon styling */
+.cancel-icon {
+  color: #6c757d;
+}
+
+.cancel-icon:hover {
+  color: #dc3545;
+  transform: scale(1.1);
+}
+
+/* ========================================
+   UTILITY CLASSES
+======================================== */
+
+.text-center {
+  text-align: center;
+}
+
+.mb-1 {
+  margin-bottom: 1rem;
+}
+
+.mt-1 {
+  margin-top: 1rem;
+}
+
+.hidden {
+  display: none;
+}
+
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ========================================
+   ANIMATIONS
+======================================== */
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+======================================== */
+
 @media (max-width: 768px) {
+  .profile-details {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .item {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .item label {
+    margin-right: 0;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .profile-info strong {
+    width: auto;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  
   .boats-header {
     flex-direction: column;
     gap: 1rem;
@@ -559,27 +785,4 @@ button[type="button"]:hover {
     flex-direction: column;
     gap: 0.25rem;
   }
-}
-
-/* Loading animation */
-.boats-loading {
-  position: relative;
-}
-
-.boats-loading::after {
-  content: '';
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #007bff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-left: 0.5rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
 }

@@ -1,11 +1,11 @@
 import { useAuth0Api } from './auth0-api';
 import { ProfileSchema } from '../schema/profileschema';
+import { useCallback } from 'react';
 
 export const useProfileService = () => {
   const { get, post, put, delete: del, isAuthenticated } = useAuth0Api();
 
-  const getProfileByEmail = async (email) => {
-    // Check authentication before making the call
+  const getProfileByEmail = useCallback(async (email) => {
     if (!isAuthenticated) {
       throw new Error('User is not authenticated');
     }
@@ -19,7 +19,7 @@ export const useProfileService = () => {
       
       if (response.status === 404) {
         console.log('No profile found for email:', email);
-        return null; // No profile found
+        return null;
       }
       
       if (response.status === 500) {
@@ -37,20 +37,19 @@ export const useProfileService = () => {
       const data = await response.json();
       console.log('Profile data received:', data);
       
-      // Validate the profile data
       try {
         const validatedProfile = ProfileSchema.parse(data);
         console.log('Profile validation successful');
         return validatedProfile;
       } catch (validationError) {
         console.warn('Profile validation failed:', validationError.errors);
-        return data; // Return raw data if validation fails
+        return data;
       }
     } catch (error) {
       console.error('Error fetching profile by email:', error);
       throw error;
     }
-  };
+  }, [get, isAuthenticated]); // Only depend on stable values
 
   const createProfile = async (profileData) => {
     if (!isAuthenticated) {

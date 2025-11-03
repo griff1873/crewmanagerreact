@@ -79,5 +79,25 @@ const AppWithProfile = () => {
 };
 
 export const App = () => {
-  return <AppWithProfile />;
+  const { isLoading, isAuthenticated } = useAuth0();
+
+  if (isLoading) {
+    return (
+      <div className="page-layout">
+        <PageLoader />
+      </div>
+    );
+  }
+
+  return isAuthenticated ? (
+    <ProfileProvider>
+      <AuthenticatedApp />
+    </ProfileProvider>
+  ) : (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/callback" element={<CallbackPage />} />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
 };

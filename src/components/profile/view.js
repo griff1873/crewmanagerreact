@@ -1,4 +1,4 @@
-
+import { FaPenSquare } from 'react-icons/fa';
 
 export const ProfileView = ({ profile, user, loginId, onEdit, onNavigateToEvents }) => {
   return (
@@ -12,20 +12,24 @@ export const ProfileView = ({ profile, user, loginId, onEdit, onNavigateToEvents
           />
         )}
         <div className="profile-info">
-          <p><strong>Name:</strong> {profile.name}</p>
-          <p><strong>Email:</strong> {profile.email}</p>
-          <p><strong>Phone:</strong> {profile.phone || 'Not provided'}</p>
-          <p><strong>Address:</strong> {profile.address || 'Not provided'}</p>
-          <p><strong>Login ID:</strong> {loginId}</p>
+          <p><strong>Name:</strong> <span className="profile-data">{profile.name}</span></p>
+          <p><strong>Email:</strong> <span className="profile-data">{profile.email}</span></p>
+          <p><strong>Phone:</strong> <span className="profile-data">{profile.phone || 'Not provided'}</span></p>
+          <p><strong>Address:</strong> <span className="profile-data">{profile.address || 'Not provided'}</span></p>
+          <p><strong>Login ID:</strong> <span className="profile-data">{loginId}</span></p>
+        </div>
+        
+        <div className="profile-actions">
+          <FaPenSquare 
+            size={20}
+            role="button"
+            tabIndex={0}
+            onClick={onEdit}
+            title="Edit profile"
+            className="action-icon edit-icon"
+          />
         </div>
       </div>
-      
-      <div className="form-actions">
-        <button onClick={onEdit}>Edit Profile</button>
-        <button onClick={onNavigateToEvents}>Go to Events</button>
-      </div>
-
-    
     </div>
   );
 };

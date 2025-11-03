@@ -89,7 +89,7 @@ export const ProfilePage = () => {
   return (
     <PageLayout>
       <div className="profile-container">
-        <h1>{profile ? 'My Profile' : 'Create Profile'}</h1>
+        <h3>{profile ? 'My Profile' : 'Create Profile'}</h3>
         
         {error && (
           <div className="error-message">
@@ -113,17 +113,22 @@ export const ProfilePage = () => {
               onNavigateToEvents={handleNavigateToEvents}
             />
             
-            {/* Boats list is now directly in the profile page */}
+            {/* Boats list shown after profile view */}
             <BoatsList profileId={profile.id} />
           </>
         ) : (
-          <ProfileForm
-            initialData={profile}
-            onSubmit={handleSubmit}
-            onCancel={profile ? handleCancel : null}
-            isLoading={saving}
-            user={user}
-          />
+          <>
+            <ProfileForm
+              initialData={profile}
+              onSubmit={handleSubmit}
+              onCancel={profile ? handleCancel : null}
+              isLoading={saving}
+              user={user}
+            />
+            
+            {/* Boats list shown after profile form (only if profile exists) */}
+            {profile && <BoatsList profileId={profile.id} />}
+          </>
         )}
       </div>
     </PageLayout>

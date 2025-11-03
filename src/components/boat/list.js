@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { FaTrashAlt, FaPenSquare, FaPlus, FaShip } from 'react-icons/fa';
+import { FaTrashAlt, FaPenSquare, FaPlus } from 'react-icons/fa';
+import { GiSailboat } from 'react-icons/gi'; // Import sailboat from Game Icons
 import { useBoatService } from '../../services/boat-service';
 
 const BoatItem = ({ boat, onEdit, onDelete }) => (
   <li className="boat-item">
     <div className="boat-info">
       <div className="boat-header">
-        <FaShip className="boat-icon" />
+        <GiSailboat className="boat-icon" /> {/* Changed from FaShip to GiSailboat */}
         <h4 className="boat-name">{boat.name}</h4>
       </div>
       {boat.description && (
@@ -40,38 +41,10 @@ const BoatItem = ({ boat, onEdit, onDelete }) => (
   </li>
 );
 
-export const BoatsList = ({ profileId }) => {
-  const { getBoatsByProfileId, deleteBoat, isAuthenticated } = useBoatService();
-  const [boats, setBoats] = useState([]);
-  const [loading, setLoading] = useState(true);
+export const BoatsList = ({ boats = [], onBoatsChange }) => {
+  const { deleteBoat, isAuthenticated } = useBoatService();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  // Fetch boats for this profile
-  useEffect(() => {
-    const fetchBoats = async () => {
-      if (!profileId || !isAuthenticated) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        setError(null);
-        
-        console.log('Fetching boats for profile ID:', profileId);
-        const profileBoats = await getBoatsByProfileId(profileId);
-        setBoats(profileBoats);
-        
-      } catch (err) {
-        console.error('Error fetching profile boats:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBoats();
-  }, [profileId, getBoatsByProfileId, isAuthenticated]);
 
   const handleEdit = (boatId) => {
     alert(`Edit boat ${boatId}`);
@@ -86,34 +59,29 @@ export const BoatsList = ({ profileId }) => {
     const originalBoats = [...boats];
 
     try {
+      setLoading(true);
+      setError(null);
+      
       // Optimistically update UI
-      setBoats(boats.filter(boat => boat.id !== boatId));
+      const updatedBoats = boats.filter(boat => boat.id !== boatId);
+      onBoatsChange(updatedBoats);
       
       await deleteBoat(boatId);
       
     } catch (err) {
       console.error('Error deleting boat:', err);
       // Revert optimistic update
-      setBoats(originalBoats);
+      onBoatsChange(originalBoats);
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleAddBoat = () => {
-    alert(`Add boat for profile ${profileId}`);
+    alert(`Add new boat`);
     // TODO: Navigate to add boat page or open modal
   };
-
-  if (loading) {
-    return (
-      <div className="boats-section">
-        <div className="boats-header">
-          <h3>My Boats</h3>
-        </div>
-        <div className="boats-loading">Loading boats...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="boats-section">
@@ -126,13 +94,17 @@ export const BoatsList = ({ profileId }) => {
 
       {error && (
         <div className="error-message">
-          Error loading boats: {error}
+          Error: {error}
         </div>
+      )}
+
+      {loading && (
+        <div className="boats-loading">Updating boats...</div>
       )}
 
       {boats.length === 0 ? (
         <div className="no-boats">
-          <FaShip size={48} className="no-boats-icon" />
+          <GiSailboat size={48} className="no-boats-icon" /> {/* Changed from FaShip to GiSailboat */}
           <p>No boats registered yet.</p>
           <button onClick={handleAddBoat} className="add-first-boat-btn">
             Add Your First Boat
