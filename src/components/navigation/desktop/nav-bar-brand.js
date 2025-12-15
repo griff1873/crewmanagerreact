@@ -8,7 +8,7 @@ export const NavBarBrand = () => {
         <img
           className="nav-bar__logo"
           src="/images/logo.png"
-          alt="Crew Manager"
+          alt="SailMate"
           width="36"
           height="36"
         />

@@ -1,5 +1,5 @@
 {
-  "name": "spa_react_javascript_hello-world",
+  "name": "sailmate",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -24,7 +24,7 @@
   },
   "scripts": {
     "start": "cross-env PORT=4040 react-scripts start",
-    "tailwind:watch": "npx @tailwindcss/cli -i ./src/styles/tailwind.css -o ./src/styles/tailwind.generated.css --watch",
+    "tailwind:watch": "npx @tailwindcss/cli -i ./src/styles/tailwind.css -o ./src/styles/tailwind.generated.css --watch -c ./tailwind.config.custom.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
