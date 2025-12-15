@@ -11,6 +11,7 @@ import { CallbackPage } from "./pages/callback-page";
 import { NotFoundPage } from "./pages/not-found-page";
 import { ProfileProvider, useProfile } from "./contexts/ProfileContext";
 import { SkipperDashboard } from "./pages/dashboard/skipper";
+import { BoatPage } from "./pages/boat";
 import "./app.css";
 import "./styles/tailwind.generated.css";
 
@@ -52,6 +53,14 @@ const AuthenticatedApp = () => {
       <Route
         path="/calendar"
         element={<AuthenticationGuard component={CalendarPage} />}
+      />
+      <Route
+        path="/boat/new"
+        element={<AuthenticationGuard component={BoatPage} />}
+      />
+      <Route
+        path="/boat/:id"
+        element={<AuthenticationGuard component={BoatPage} />}
       />
       <Route path="/callback" element={<CallbackPage />} />
       <Route path="*" element={<NotFoundPage />} />

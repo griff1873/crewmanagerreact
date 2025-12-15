@@ -15,7 +15,7 @@ export const useProfile = () => {
 export const ProfileProvider = ({ children }) => {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth0();
   const profileService = useProfileService(); // Get the whole service object
-  
+
   const [profile, setProfile] = useState(null);
   const [loginId, setLoginId] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -31,30 +31,35 @@ export const ProfileProvider = ({ children }) => {
     try {
       setProfileLoading(true);
       setProfileError(null);
-      
+
       console.log('Loading profile for email:', user.email);
       const userProfile = await profileService.getProfileByEmail(user.email);
-      
+
       if (userProfile) {
         console.log('Profile loaded:', userProfile);
         setProfile(userProfile);
         setLoginId(userProfile.loginId || user.sub);
+
+        // Store profile ID for easy access throughout the app
+        if (userProfile.id) {
+          localStorage.setItem('user_profile_id', userProfile.id);
+        }
       } else {
         console.log('No profile found');
         setProfile(null);
         setLoginId(user.sub); // Use Auth0 user ID as fallback
       }
-      
+
       setHasChecked(true);
     } catch (error) {
       console.error('Error loading profile:', error);
       setProfileError(error.message);
-      
+
       // Set loginId from Auth0 even if profile loading fails
       if (user?.sub) {
         setLoginId(user.sub);
       }
-      
+
       setHasChecked(true);
     } finally {
       setProfileLoading(false);
@@ -89,6 +94,7 @@ export const ProfileProvider = ({ children }) => {
     setLoginId(null);
     setProfileError(null);
     setHasChecked(false);
+    localStorage.removeItem('user_profile_id');
   }, []);
 
   const value = {

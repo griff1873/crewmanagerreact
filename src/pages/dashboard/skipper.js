@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { FaPlus } from 'react-icons/fa';
 import { PageLayout } from '../../components/page-layout';
 import BoatCard from '../../components/boat/card';
 import RequestCard from '../../components/crew/requestcard';
 import EventCard from '../../components/events/event-card';
+import { useBoatService } from '../../services/boat-service';
 
 // Sample boat data
 const sampleBoats = [
@@ -116,16 +119,34 @@ const sampleEvents = [
 export const SkipperDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('all');
+  const [boats, setBoats] = useState([]);
+  const { getBoatsByProfileId } = useBoatService();
 
-  const filteredBoats = sampleBoats.filter(boat => {
+  useEffect(() => {
+    const fetchBoats = async () => {
+      const profileId = localStorage.getItem('user_profile_id');
+      if (profileId) {
+        try {
+          const userBoats = await getBoatsByProfileId(profileId);
+          setBoats(userBoats);
+        } catch (error) {
+          console.error('Failed to fetch boats:', error);
+        }
+      }
+    };
+
+    fetchBoats();
+  }, []);
+
+  const filteredBoats = boats.filter(boat => {
     const matchesSearch = boat.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      boat.description.toLowerCase().includes(searchTerm.toLowerCase());
+      (boat.description && boat.description.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesType = selectedType === 'all' || boat.type === selectedType;
     return matchesSearch && matchesType;
   });
 
   // Get unique boat types for filter
-  const boatTypes = ['all', ...new Set(sampleBoats.map(boat => boat.type))];
+  const boatTypes = ['all', ...new Set(boats.map(boat => boat.type))];
 
   return (
     <PageLayout>
@@ -147,9 +168,14 @@ export const SkipperDashboard = () => {
 
           {/* Right Column: Boat Grid */}
           <div className="w-full lg:w-1/3 border-2 border-red-500 p-2 rounded">
-            <h1 className="text-4xl font-bold text-skipper-primary !pt-0 !mt-0">
-              My Fleet
-            </h1>
+            <div className="flex justify-between items-center mb-2">
+              <h1 className="text-4xl font-bold text-skipper-primary !pt-0 !mt-0">
+                My Fleet
+              </h1>
+              <Link to="/boat/new" className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors !pt-0 !mt-0" title="Add New Boat">
+                <FaPlus size={14} />
+              </Link>
+            </div>
             {filteredBoats.length > 0 ? (
               <div className="grid grid-cols-1 gap-6 h-[340px] overflow-y-auto pb-4 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                 {filteredBoats.map(boat => (

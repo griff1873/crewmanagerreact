@@ -11,7 +11,7 @@ export const useProfileCheck = () => {
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileError, setProfileError] = useState(null);
   const [hasChecked, setHasChecked] = useState(false);
-  
+
   // Use ref to track if we've already made the API call
   const hasAttemptedCheck = useRef(false);
 
@@ -28,23 +28,28 @@ export const useProfileCheck = () => {
       try {
         setProfileLoading(true);
         setProfileError(null);
-        
+
         console.log('Checking profile for email:', user.email);
         const userProfile = await getProfileByEmail(user.email);
-        
+
         if (userProfile) {
           console.log('Profile found:', userProfile);
           setProfile(userProfile);
+          // Store profile ID for easy access throughout the app
+          if (userProfile.id) {
+            localStorage.setItem('user_profile_id', userProfile.id);
+            console.log('Stored profile ID in localStorage:', userProfile.id);
+          }
         } else {
           console.log('No profile found, redirecting to profile page');
           navigate('/profile');
         }
-        
+
         setHasChecked(true);
       } catch (error) {
         console.error('Error checking profile:', error);
         setProfileError(error.message);
-        
+
         // Only redirect on 404 errors, not on 500 errors
         if (error.message.includes('404') || error.message.includes('not found')) {
           console.log('Profile not found (404), redirecting to profile page');
@@ -56,7 +61,7 @@ export const useProfileCheck = () => {
           console.log('Other error, redirecting to profile page');
           navigate('/profile');
         }
-        
+
         setHasChecked(true);
       } finally {
         setProfileLoading(false);
