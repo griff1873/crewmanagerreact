@@ -11,6 +11,7 @@ export const NavBarTabs = () => {
       <NavBarTab path="/public" label="Public" />
       {isAuthenticated && (
         <>
+          <NavBarTab path="/dashboard/skipper" label="Dashboard" />
           <NavBarTab path="/calendar" label="Calendar" />
           <NavBarTab path="/events" label="Events" />
           <NavBarTab path="/protected" label="Protected" />

@@ -11,10 +11,17 @@ import { useProfile } from "../contexts/ProfileContext";
 export const ProfilePage = () => {
   const { user, isAuthenticated } = useAuth0();
   const { createProfile, updateProfile: updateProfileApi } = useProfileService();
-  const { profile, loginId, updateProfile: updateProfileContext, profileLoading } = useProfile();
+  const { 
+    profile, 
+    loginId, 
+    boats, 
+    updateProfile: updateProfileContext, 
+    updateBoats,
+    profileLoading 
+  } = useProfile();
   const navigate = useNavigate();
   
-  const [isEditing, setIsEditing] = useState(!profile); // Edit mode if no profile
+  const [isEditing, setIsEditing] = useState(!profile);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -27,21 +34,16 @@ export const ProfilePage = () => {
 
       let savedProfile;
       if (profile) {
-        // Update existing profile
         savedProfile = await updateProfileApi(profile.id, validatedData);
         setSuccess('Profile updated successfully!');
       } else {
-        // Create new profile
         savedProfile = await createProfile(validatedData);
         setSuccess('Profile created successfully!');
       }
 
-      // Update the context with the new/updated profile
       updateProfileContext(savedProfile);
-      
       setIsEditing(false);
 
-      // Redirect to events page after successful creation/update
       setTimeout(() => {
         navigate('/events');
       }, 1500);
@@ -70,6 +72,10 @@ export const ProfilePage = () => {
     navigate('/events');
   };
 
+  const handleBoatsChange = (newBoats) => {
+    updateBoats(newBoats);
+  };
+
   if (profileLoading) {
     return (
       <PageLayout>
@@ -89,7 +95,7 @@ export const ProfilePage = () => {
   return (
     <PageLayout>
       <div className="profile-container">
-        <h3>{profile ? 'My Profile' : 'Create Profile'}</h3>
+        <h1>{profile ? 'My Profile' : 'Create Profile'}</h1>
         
         {error && (
           <div className="error-message">
@@ -113,8 +119,11 @@ export const ProfilePage = () => {
               onNavigateToEvents={handleNavigateToEvents}
             />
             
-            {/* Boats list shown after profile view */}
-            <BoatsList profileId={profile.id} />
+            <BoatsList 
+              boats={boats} 
+              onBoatsChange={handleBoatsChange}
+              profileId={profile.id}
+            />
           </>
         ) : (
           <>
@@ -126,8 +135,13 @@ export const ProfilePage = () => {
               user={user}
             />
             
-            {/* Boats list shown after profile form (only if profile exists) */}
-            {profile && <BoatsList profileId={profile.id} />}
+            {profile && (
+              <BoatsList 
+                boats={boats} 
+                onBoatsChange={handleBoatsChange}
+                profileId={profile.id}
+              />
+            )}
           </>
         )}
       </div>

@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { FaTrashAlt, FaPenSquare, FaPlus } from 'react-icons/fa';
-import { GiSailboat } from 'react-icons/gi'; // Import sailboat from Game Icons
+import { GiSailboat } from 'react-icons/gi';
 import { useBoatService } from '../../services/boat-service';
+import { BoatForm } from './form'; // Import the boat form
 
 const BoatItem = ({ boat, onEdit, onDelete }) => (
   <li className="boat-item">
     <div className="boat-info">
       <div className="boat-header">
-        <GiSailboat className="boat-icon" /> {/* Changed from FaShip to GiSailboat */}
+        <GiSailboat className="boat-icon" />
         <h4 className="boat-name">{boat.name}</h4>
       </div>
       {boat.description && (
@@ -41,10 +42,12 @@ const BoatItem = ({ boat, onEdit, onDelete }) => (
   </li>
 );
 
-export const BoatsList = ({ boats = [], onBoatsChange }) => {
-  const { deleteBoat, isAuthenticated } = useBoatService();
+export const BoatsList = ({ boats = [], onBoatsChange, profileId }) => {
+  const { deleteBoat, createBoat, isAuthenticated } = useBoatService();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
 
   const handleEdit = (boatId) => {
     alert(`Edit boat ${boatId}`);
@@ -62,7 +65,6 @@ export const BoatsList = ({ boats = [], onBoatsChange }) => {
       setLoading(true);
       setError(null);
       
-      // Optimistically update UI
       const updatedBoats = boats.filter(boat => boat.id !== boatId);
       onBoatsChange(updatedBoats);
       
@@ -70,7 +72,6 @@ export const BoatsList = ({ boats = [], onBoatsChange }) => {
       
     } catch (err) {
       console.error('Error deleting boat:', err);
-      // Revert optimistic update
       onBoatsChange(originalBoats);
       setError(err.message);
     } finally {
@@ -79,17 +80,54 @@ export const BoatsList = ({ boats = [], onBoatsChange }) => {
   };
 
   const handleAddBoat = () => {
-    alert(`Add new boat`);
-    // TODO: Navigate to add boat page or open modal
+    setShowAddForm(true); // Show the form instead of alert
+    setError(null);
+  };
+
+  const handleFormSubmit = async (boatData) => {
+    try {
+      setFormLoading(true);
+      setError(null);
+      
+      // Add profileId to the boat data
+      const boatWithProfile = {
+        ...boatData,
+        profileId: profileId
+      };
+      
+      console.log('Creating boat:', boatWithProfile);
+      const newBoat = await createBoat(boatWithProfile);
+      
+      // Add the new boat to the list
+      const updatedBoats = [...boats, newBoat];
+      onBoatsChange(updatedBoats);
+      
+      // Hide the form
+      setShowAddForm(false);
+      
+    } catch (err) {
+      console.error('Error creating boat:', err);
+      setError(err.message);
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleFormCancel = () => {
+    setShowAddForm(false);
+    setError(null);
   };
 
   return (
     <div className="boats-section">
       <div className="boats-header">
         <h3>My Boats</h3>
-        <button onClick={handleAddBoat} className="add-boat-btn">
-          <FaPlus /> Add Boat
-        </button>
+        {/* Only show the Add Boat button when form is NOT shown */}
+        {!showAddForm && (
+          <button onClick={handleAddBoat} className="add-boat-btn" title="Add Boat">
+            <FaPlus />
+          </button>
+        )}
       </div>
 
       {error && (
@@ -102,25 +140,38 @@ export const BoatsList = ({ boats = [], onBoatsChange }) => {
         <div className="boats-loading">Updating boats...</div>
       )}
 
-      {boats.length === 0 ? (
+      {/* Show add boat form when showAddForm is true */}
+      {showAddForm && (
+        <div className="add-boat-form">
+          <BoatForm
+            onSubmit={handleFormSubmit}
+            onCancel={handleFormCancel}
+            isLoading={formLoading}
+          />
+        </div>
+      )}
+
+      {boats.length === 0 && !showAddForm ? (
         <div className="no-boats">
-          <GiSailboat size={48} className="no-boats-icon" /> {/* Changed from FaShip to GiSailboat */}
+          <GiSailboat size={48} className="no-boats-icon" />
           <p>No boats registered yet.</p>
           <button onClick={handleAddBoat} className="add-first-boat-btn">
             Add Your First Boat
           </button>
         </div>
       ) : (
-        <ul className="boats-list">
-          {boats.map((boat) => (
-            <BoatItem 
-              key={boat.id} 
-              boat={boat} 
-              onEdit={handleEdit} 
-              onDelete={handleDelete} 
-            />
-          ))}
-        </ul>
+        !showAddForm && (
+          <ul className="boats-list">
+            {boats.map((boat) => (
+              <BoatItem 
+                key={boat.id} 
+                boat={boat} 
+                onEdit={handleEdit} 
+                onDelete={handleDelete} 
+              />
+            ))}
+          </ul>
+        )
       )}
     </div>
   );

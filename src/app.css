@@ -139,15 +139,45 @@ button[type="button"] {
 button[type="button"]:hover:not(:disabled) {
   background-color: #545b62;
 }
-
-.add-boat-btn,
-.add-first-boat-btn {
-  background-color: #28a745;
+.add-first-boat-btn
+{  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s, transform 0.1s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+/* Icon-only add boat buttons */
+.add-boat-btn
+{  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 50%; /* Make it circular */
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s, transform 0.1s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
 .add-boat-btn:hover,
 .add-first-boat-btn:hover {
   background-color: #218838;
+  transform: scale(1.1);
+}
+
+.add-boat-btn:active,
+.add-first-boat-btn:active {
+  transform: scale(0.95);
 }
 
 .form-actions button[type="submit"] {
@@ -640,10 +670,8 @@ button[type="button"]:hover:not(:disabled) {
 }
 
 .boat-actions {
-  display: flex;
   gap: 0.75rem;
-  align-items: flex-start;
-  flex-shrink: 0;
+  align-items: right;
   margin-left: 1rem;
 }
 
@@ -700,89 +728,166 @@ button[type="button"]:hover:not(:disabled) {
 }
 
 /* ========================================
-   UTILITY CLASSES
+   ADD BOAT FORM STYLES
 ======================================== */
 
-.text-center {
-  text-align: center;
+/* Add boat form styling */
+.add-boat-form {
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.mb-1 {
-  margin-bottom: 1rem;
+.add-boat-form h4 {
+  margin: 0 0 1.5rem 0;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.mt-1 {
-  margin-top: 1rem;
+.add-boat-form h4::before {
+  content: '⛵';
+  font-size: 1.2em;
 }
 
-.hidden {
-  display: none;
+/* Boat form layout */
+.boat-form {
+  width: 100%;
 }
 
-.loading {
-  opacity: 0.6;
-  pointer-events: none;
+.boat-form-layout {
+  padding: 1.5rem;
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-/* ========================================
-   ANIMATIONS
-======================================== */
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+/* Boat form header - title and actions on same line */
+.boat-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #dee2e6;
 }
 
-/* ========================================
-   RESPONSIVE DESIGN
-======================================== */
+.boat-form-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
 
+.boat-form-icon {
+  color: #007bff;
+  font-size: 1.5rem;
+}
+
+.boat-form-title h4 {
+  margin: 0;
+  color: #495057;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* Boat form actions - now in header */
+.boat-form-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.boat-form-fields {
+  width: 100%;
+}
+
+.boat-form-fields .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.boat-form-fields .form-group:last-child {
+  margin-bottom: 0;
+}
+
+.boat-form-fields label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.boat-form-fields input,
+.boat-form-fields textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.boat-form-fields input:focus,
+.boat-form-fields textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.boat-form-fields input.error,
+.boat-form-fields textarea.error {
+  border-color: #dc3545;
+}
+
+.boat-form-fields textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Icon styling for boat form actions */
+.boat-form-actions .save-icon {
+  color: #6c757d;
+}
+
+.boat-form-actions .save-icon:hover:not(.disabled) {
+  color: #28a745;
+  transform: scale(1.1);
+}
+
+.boat-form-actions .save-icon.disabled {
+  color: #adb5bd;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.boat-form-actions .cancel-icon {
+  color: #6c757d;
+}
+
+.boat-form-actions .cancel-icon:hover {
+  color: #dc3545;
+  transform: scale(1.1);
+}
+
+/* Add boat form container */
+.add-boat-form {
+  margin-bottom: 2rem;
+}
+
+/* Responsive design for boat form */
 @media (max-width: 768px) {
-  .profile-details {
+  .boat-form-header {
     flex-direction: column;
+    gap: 1rem;
     align-items: center;
-    text-align: center;
   }
   
-  .item {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .item label {
-    margin-right: 0;
-  }
-  
-  .form-actions {
-    flex-direction: column;
-  }
-  
-  .profile-info strong {
-    width: auto;
-    display: block;
-    margin-bottom: 0.25rem;
-  }
-  
-  .boats-header {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-  
-  .boat-item {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .boat-actions {
+  .boat-form-actions {
     justify-content: center;
-    margin-left: 0;
-    padding-top: 1rem;
-    border-top: 1px solid #dee2e6;
-  }
-  
-  .boat-meta {
-    flex-direction: column;
-    gap: 0.25rem;
   }
 }

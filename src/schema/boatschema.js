@@ -8,6 +8,9 @@ export const BoatSchema = z.object({
   description: z.string()
     .max(1000, 'Description must be 1000 characters or less')
     .default(''),
+  image: z.string()
+    .url('Image must be a valid URL')
+    .default('/images/defaultboat.png'),
   profileId: z.number().int('Profile ID must be an integer').min(1, 'Profile ID is required'),
   // Audit fields
   createdAt: z.string().datetime('Created date must be a valid datetime'),
@@ -34,15 +37,15 @@ export const BoatsResponseSchema = z.object({
 });
 
 // Schema for creating a new boat (without audit fields)
-export const CreateBoatSchema = BoatSchema.omit({ 
-  id: true, 
-  createdAt: true, 
-  updatedAt: true, 
-  isDeleted: true, 
-  deletedBy: true, 
-  deletedAt: true, 
-  createdBy: true, 
-  updatedBy: true 
+export const CreateBoatSchema = BoatSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  isDeleted: true,
+  deletedBy: true,
+  deletedAt: true,
+  createdBy: true,
+  updatedBy: true
 });
 
 // Schema for updating a boat (only user-editable fields)

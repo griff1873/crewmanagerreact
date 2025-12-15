@@ -10,8 +10,9 @@ import { EventsPage } from "./pages/events-page";
 import { CallbackPage } from "./pages/callback-page";
 import { NotFoundPage } from "./pages/not-found-page";
 import { ProfileProvider, useProfile } from "./contexts/ProfileContext";
-
+import { SkipperDashboard } from "./pages/dashboard/skipper";
 import "./app.css";
+import "./styles/tailwind.generated.css";
 
 const AuthenticatedApp = () => {
   const { profileLoading, profileError, hasProfile, hasChecked } = useProfile();
@@ -39,6 +40,10 @@ const AuthenticatedApp = () => {
       <Route
         path="/profile"
         element={<AuthenticationGuard component={ProfilePage} />}
+      />
+      <Route
+        path="/dashboard/skipper"
+        element={<AuthenticationGuard component={SkipperDashboard} />}
       />
       <Route
         path="/events"
