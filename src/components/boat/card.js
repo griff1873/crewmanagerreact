@@ -15,9 +15,9 @@ const BoatCard = ({ boat }) => {
     } = boat;
 
     return (
-        <div className="relative max-w-xs overflow-hidden rounded-2xl shadow-lg group bg-white transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-            {/* Image with overlay */}
-            <div className="relative h-48 overflow-hidden">
+        <div className="flex flex-row w-full max-w-full overflow-hidden rounded-2xl shadow-md group bg-white transition-all duration-300 hover:shadow-lg border border-gray-100">
+            {/* Image Section - Left Side */}
+            <div className="relative w-1/3 min-w-[120px] overflow-hidden">
                 <img
                     src={image || '/images/defaultboat.png'}
                     alt={name}
@@ -28,12 +28,18 @@ const BoatCard = ({ boat }) => {
                     }}
                 />
             </div>
-            {/* Name positioned below image */}
-            <div className="p-4 pt-0">
-                <h3 className="text-xl font-bold text-blue-600 mb-2">{name}</h3>
-                <p className="text-gray-700 line-clamp-3 text-sm">
+
+            {/* Content Section - Right Side */}
+            <div className="flex-1 p-3 flex flex-col justify-center">
+                <h3 className="text-lg font-bold text-blue-600 mb-1">{name}</h3>
+                <p className="text-gray-600 line-clamp-2 text-xs">
                     {description || 'No description available'}
                 </p>
+                <div className="mt-2 text-xs text-gray-400">
+                    {/* Optional: Add capacity or length here if desired, e.g. 
+                    <span>{boat.length}ft • {boat.capacity} ppl</span> 
+                    */}
+                </div>
             </div>
         </div>
     );

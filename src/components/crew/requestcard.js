@@ -20,25 +20,49 @@ const RequestCard = ({ request, onAccept, onDelete }) => {
 
     return (
         <li className="bg-white rounded-lg shadow-md p-4 mb-4 transition-all duration-300 hover:shadow-lg border border-gray-100">
-            {/* Header: Image and Name */}
-            <div className="flex items-center mb-3">
-                {/* Circular image */}
-                <div className="flex-shrink-0 mr-4">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center">
-                        {image ? (
-                            <img
-                                src={image}
-                                alt={name}
-                                className="w-full h-full object-cover"
-                            />
-                        ) : (
-                            <GiCaptainHatProfile className="text-gray-400 text-2xl" />
-                        )}
+            {/* Header: Image, Name, and Actions */}
+            <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center">
+                    {/* Circular image */}
+                    <div className="flex-shrink-0 mr-4">
+                        <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center">
+                            {image ? (
+                                <img
+                                    src={image}
+                                    alt={name}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <GiCaptainHatProfile className="text-gray-400 text-2xl" />
+                            )}
+                        </div>
                     </div>
+
+                    {/* Name */}
+                    <h4 className="text-lg font-bold text-gray-800 leading-tight">{name}</h4>
                 </div>
 
-                {/* Name */}
-                <h4 className="text-lg font-bold text-gray-800 leading-tight">{name}</h4>
+                {/* Actions - Right Justified */}
+                <div className="flex space-x-2">
+                    {onAccept && (
+                        <button
+                            onClick={() => onAccept(id)}
+                            className="text-gray-400 hover:text-green-600 transition-colors p-1"
+                            title="Accept crew request"
+                        >
+                            <FaCheck size={16} />
+                        </button>
+                    )}
+                    {onDelete && (
+                        <button
+                            onClick={() => onDelete(id)}
+                            className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                            title="Delete crew request"
+                        >
+                            <FaTrashAlt size={16} />
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Body: Boat Name and Meta */}
@@ -62,26 +86,7 @@ const RequestCard = ({ request, onAccept, onDelete }) => {
             </div>
 
             {/* Actions Footer */}
-            <div className="mt-3 pt-3 border-t border-gray-100 flex justify-end space-x-2">
-                {onAccept && (
-                    <button
-                        onClick={() => onAccept(id)}
-                        className="text-gray-400 hover:text-green-600 transition-colors p-1"
-                        title="Accept crew request"
-                    >
-                        <FaCheck size={16} />
-                    </button>
-                )}
-                {onDelete && (
-                    <button
-                        onClick={() => onDelete(id)}
-                        className="text-gray-400 hover:text-red-600 transition-colors p-1"
-                        title="Delete crew request"
-                    >
-                        <FaTrashAlt size={16} />
-                    </button>
-                )}
-            </div>
+
         </li>
     );
 };

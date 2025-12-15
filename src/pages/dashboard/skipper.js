@@ -129,27 +129,31 @@ export const SkipperDashboard = () => {
 
   return (
     <PageLayout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-8 mb-4">
-          <div className="w-full lg:w-2/3">
-            <h1 className="text-4xl font-bold text-skipper-primary">
-              My Fleet
-            </h1>
-          </div>
-          <div className="w-full lg:w-1/3">
-            <h2 className="text-2xl font-bold text-skipper-primary pt-2">
-              Crew Requests
-            </h2>
-          </div>
-        </div>
+      <div className="w-full px-1 py-8">
+
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Left Column: Boat Grid */}
-          <div className="w-full lg:w-2/3">
+          {/* Left Column: Upcoming Events */}
+          <div className="w-full lg:w-2/3 border-2 border-green-500 p-2 rounded">
+            <h2 className="text-2xl font-bold text-skipper-primary !pt-0 !mt-0 mb-6">
+              Upcoming Events
+            </h2>
+            <div className="grid grid-cols-1 gap-6 h-[340px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+              {sampleEvents.map(event => (
+                <EventCard key={event.id} event={event} />
+              ))}
+            </div>
+          </div>
+
+          {/* Right Column: Boat Grid */}
+          <div className="w-full lg:w-1/3 border-2 border-red-500 p-2 rounded">
+            <h1 className="text-4xl font-bold text-skipper-primary !pt-0 !mt-0">
+              My Fleet
+            </h1>
             {filteredBoats.length > 0 ? (
-              <div className="flex overflow-x-auto pb-4 gap-6 scrollbar-hide">
+              <div className="grid grid-cols-1 gap-6 h-[340px] overflow-y-auto pb-4 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                 {filteredBoats.map(boat => (
-                  <div key={boat.id} className="flex-shrink-0 w-80">
+                  <div key={boat.id} className="flex justify-center">
                     <BoatCard boat={boat} />
                   </div>
                 ))}
@@ -176,30 +180,21 @@ export const SkipperDashboard = () => {
               </div>
             )}
           </div>
-
-          {/* Right Column: Crew Requests */}
-          <div className="w-full lg:w-1/3">
-            <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-              {sampleCrewRequests.map(request => (
-                <RequestCard
-                  key={request.id}
-                  request={request}
-                  onAccept={(id) => console.log('Accept request', id)}
-                  onDelete={(id) => console.log('Delete request', id)}
-                />
-              ))}
-            </div>
-          </div>
         </div>
 
-        {/* Upcoming Events Section */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold text-skipper-primary mb-6">
-            Upcoming Events
+        {/* Crew Requests Section */}
+        <div className="mt-12 border-2 border-blue-500 px-2 pb-2 pt-0 rounded">
+          <h2 className="text-2xl font-bold text-skipper-primary !pt-0 !mt-0 mb-4">
+            Crew Requests
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sampleEvents.map(event => (
-              <EventCard key={event.id} event={event} />
+          <div className="space-y-4">
+            {sampleCrewRequests.map(request => (
+              <RequestCard
+                key={request.id}
+                request={request}
+                onAccept={(id) => console.log('Accept request', id)}
+                onDelete={(id) => console.log('Delete request', id)}
+              />
             ))}
           </div>
         </div>
