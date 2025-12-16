@@ -21,12 +21,12 @@ const BoatCard = ({ boat, onEdit, onDelete }) => {
     return (
         <div className="flex flex-row w-full max-w-full overflow-hidden rounded-2xl shadow-md group bg-white transition-all duration-300 hover:shadow-lg border border-gray-100">
             {/* Image Section - Left Side */}
-            <div className="relative w-1/3 min-w-[120px] overflow-hidden flex items-center justify-center bg-gray-50">
+            <div className="relative w-1/3 min-w-[120px] overflow-hidden flex items-center justify-center bg-gray-50 p-2">
                 {image && !imgError ? (
                     <img
                         src={image}
                         alt={name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                         onError={() => setImgError(true)}
                     />
                 ) : (
