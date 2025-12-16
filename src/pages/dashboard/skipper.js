@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaPlus } from 'react-icons/fa';
 import { PageLayout } from '../../components/page-layout';
 import BoatCard from '../../components/boat/card';
+import { ConfirmationModal } from '../../components/common/confirmation-modal';
 import RequestCard from '../../components/crew/requestcard';
 import EventCard from '../../components/events/event-card';
 import { useBoatService } from '../../services/boat-service';
@@ -117,10 +118,11 @@ const sampleEvents = [
 ];
 
 export const SkipperDashboard = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('all');
   const [boats, setBoats] = useState([]);
-  const { getBoatsByProfileId } = useBoatService();
+  const { getBoatsByProfileId, deleteBoat } = useBoatService();
 
   useEffect(() => {
     const fetchBoats = async () => {
@@ -137,6 +139,28 @@ export const SkipperDashboard = () => {
 
     fetchBoats();
   }, []);
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [boatToDelete, setBoatToDelete] = useState(null);
+
+  const handleDeleteClick = (boat) => {
+    setBoatToDelete(boat);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDeleteBoat = async () => {
+    if (!boatToDelete) return;
+
+    try {
+      await deleteBoat(boatToDelete.id);
+      setBoats(prev => prev.filter(b => b.id !== boatToDelete.id));
+      setDeleteModalOpen(false);
+      setBoatToDelete(null);
+    } catch (error) {
+      console.error("Failed to delete boat", error);
+      alert("Failed to delete boat");
+    }
+  };
 
   const filteredBoats = boats.filter(boat => {
     const matchesSearch = boat.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -180,7 +204,11 @@ export const SkipperDashboard = () => {
               <div className="grid grid-cols-1 gap-6 h-[340px] overflow-y-auto pb-4 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                 {filteredBoats.map(boat => (
                   <div key={boat.id} className="flex justify-center">
-                    <BoatCard boat={boat} />
+                    <BoatCard
+                      boat={boat}
+                      onEdit={(id) => navigate(`/boat/${id}`)}
+                      onDelete={() => handleDeleteClick(boat)}
+                    />
                   </div>
                 ))}
               </div>
@@ -225,6 +253,17 @@ export const SkipperDashboard = () => {
           </div>
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={deleteModalOpen}
+        title="Delete Boat"
+        message={`Are you sure you want to delete ${boatToDelete?.name}? This action cannot be undone.`}
+        onConfirm={confirmDeleteBoat}
+        onCancel={() => setDeleteModalOpen(false)}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDanger={true}
+      />
     </PageLayout>
   );
 };

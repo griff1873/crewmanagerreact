@@ -9,17 +9,17 @@ export const BoatSchema = z.object({
     .max(1000, 'Description must be 1000 characters or less')
     .default(''),
   image: z.string()
-    .url('Image must be a valid URL')
     .default('/images/defaultboat.png'),
-  profileId: z.number().int('Profile ID must be an integer').min(1, 'Profile ID is required'),
+  profileId: z.coerce.number().int('Profile ID must be an integer').min(1, 'Profile ID is required'),
   // Audit fields
-  createdAt: z.string().datetime('Created date must be a valid datetime'),
-  updatedAt: z.string().datetime('Updated date must be a valid datetime'),
-  isDeleted: z.boolean(),
-  deletedBy: z.string().nullable(),
-  deletedAt: z.string().datetime().nullable(),
-  createdBy: z.string().nullable(),
-  updatedBy: z.string().nullable()
+  // Audit fields
+  createdAt: z.string().datetime('Created date must be a valid datetime').optional(),
+  updatedAt: z.string().datetime('Updated date must be a valid datetime').optional(),
+  isDeleted: z.boolean().default(false),
+  deletedBy: z.string().nullable().optional(),
+  deletedAt: z.string().datetime().nullable().optional(),
+  createdBy: z.string().nullable().optional(),
+  updatedBy: z.string().nullable().optional()
 });
 
 // Pagination schema (reuse from existing schemas)

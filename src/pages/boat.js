@@ -38,6 +38,7 @@ export const BoatPage = () => {
     }, [id, isEditMode]);
 
     const handleSubmit = async (formData) => {
+        console.log('BoatPage handleSubmit called with:', formData);
         try {
             setIsSaving(true);
             setError(null);

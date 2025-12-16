@@ -8,7 +8,19 @@ const BoatItem = ({ boat, onEdit, onDelete }) => (
   <li className="boat-item">
     <div className="boat-info">
       <div className="boat-header">
-        <GiSailboat className="boat-icon" />
+        {boat.image ? (
+          <img
+            src={boat.image}
+            alt={boat.name}
+            className="w-12 h-12 rounded-full object-cover mr-3 border border-gray-200"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'block';
+            }}
+          />
+        ) : null}
+        <GiSailboat className="boat-icon" style={{ display: boat.image ? 'none' : 'block' }} />
         <h4 className="boat-name">{boat.name}</h4>
       </div>
       {boat.description && (
@@ -22,7 +34,7 @@ const BoatItem = ({ boat, onEdit, onDelete }) => (
       </div>
     </div>
     <div className="boat-actions">
-      <FaPenSquare 
+      <FaPenSquare
         size={20}
         role="button"
         tabIndex={0}
@@ -64,12 +76,12 @@ export const BoatsList = ({ boats = [], onBoatsChange, profileId }) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const updatedBoats = boats.filter(boat => boat.id !== boatId);
       onBoatsChange(updatedBoats);
-      
+
       await deleteBoat(boatId);
-      
+
     } catch (err) {
       console.error('Error deleting boat:', err);
       onBoatsChange(originalBoats);
@@ -88,23 +100,23 @@ export const BoatsList = ({ boats = [], onBoatsChange, profileId }) => {
     try {
       setFormLoading(true);
       setError(null);
-      
+
       // Add profileId to the boat data
       const boatWithProfile = {
         ...boatData,
         profileId: profileId
       };
-      
+
       console.log('Creating boat:', boatWithProfile);
       const newBoat = await createBoat(boatWithProfile);
-      
+
       // Add the new boat to the list
       const updatedBoats = [...boats, newBoat];
       onBoatsChange(updatedBoats);
-      
+
       // Hide the form
       setShowAddForm(false);
-      
+
     } catch (err) {
       console.error('Error creating boat:', err);
       setError(err.message);
@@ -163,11 +175,11 @@ export const BoatsList = ({ boats = [], onBoatsChange, profileId }) => {
         !showAddForm && (
           <ul className="boats-list">
             {boats.map((boat) => (
-              <BoatItem 
-                key={boat.id} 
-                boat={boat} 
-                onEdit={handleEdit} 
-                onDelete={handleDelete} 
+              <BoatItem
+                key={boat.id}
+                boat={boat}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
               />
             ))}
           </ul>

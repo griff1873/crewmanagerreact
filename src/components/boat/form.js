@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FaTimes, FaSave, FaPlus } from 'react-icons/fa';
 import { GiSailboat } from 'react-icons/gi';
 import { CreateBoatSchema } from '../../schema/boatschema';
@@ -39,13 +39,16 @@ export const BoatForm = ({ initialData, onSubmit, onCancel, isLoading }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     try {
-      // Validate form data
-      const validatedData = CreateBoatSchema.parse(formData);
+      console.log('Validating form data:', formData);
+      const FormSchema = CreateBoatSchema.omit({ profileId: true });
+      const validatedData = FormSchema.parse(formData);
+      console.log('Validation successful, calling onSubmit with:', validatedData);
       setErrors({});
       onSubmit(validatedData);
     } catch (error) {
+      console.error('Form submission error:', error);
       if (error.errors) {
         const newErrors = {};
         error.errors.forEach(err => {
@@ -56,29 +59,71 @@ export const BoatForm = ({ initialData, onSubmit, onCancel, isLoading }) => {
     }
   };
 
+  const formRef = useRef(null);
+
   const handleSaveClick = () => {
-    // Trigger form submission when save icon is clicked
-    const form = document.querySelector('.boat-form form');
-    if (form) {
-      form.requestSubmit();
+    if (formRef.current) {
+      formRef.current.requestSubmit();
     }
   };
 
   const isNewBoat = !initialData;
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({
+          ...prev,
+          image: reader.result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    document.getElementById('boat-image-input').click();
+  };
+
   return (
-    <div className="boat-form-container">       
-      <form onSubmit={handleSubmit} className="boat-form">
+    <div className="boat-form-container bg-white rounded-lg shadow-md p-6 w-full mx-auto border border-gray-100 mt-8">
+      <form ref={formRef} onSubmit={handleSubmit} className="boat-form">
         <div className="boat-form-layout">
           {/* Add boat form header with icon and title */}
           <div className="boat-form-header">
-            <div className="boat-form-title">
-             
-              <h4>{isNewBoat ? 'Add New Boat' : 'Edit Boat'}</h4>
+            <div className="boat-form-title flex flex-col items-center justify-center w-full mb-6">
+              <div
+                onClick={triggerFileInput}
+                className="cursor-pointer hover:opacity-80 transition-opacity relative group"
+                title="Click to upload boat image"
+              >
+                {formData.image ? (
+                  <img
+                    src={formData.image}
+                    alt="Boat Preview"
+                    className="w-32 h-32 rounded-full object-cover border-4 border-skipper-primary shadow-sm mb-2"
+                  />
+                ) : (
+                  <GiSailboat className="boat-icon text-skipper-primary mb-2" size={72} />
+                )}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/10 rounded-full transition-opacity">
+                  <span className="text-xs bg-black text-white px-2 py-1 rounded">Upload</span>
+                </div>
+              </div>
+              <input
+                type="file"
+                id="boat-image-input"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+              <h4 className="text-2xl font-bold">{isNewBoat ? 'Add New Boat' : 'Edit Boat'}</h4>
             </div>
-            
+
             <div className="boat-form-actions">
-              <FaSave 
+              <FaSave
                 size={20}
                 role="button"
                 tabIndex={0}
@@ -87,7 +132,7 @@ export const BoatForm = ({ initialData, onSubmit, onCancel, isLoading }) => {
                 className={`action-icon save-icon ${isLoading ? 'disabled' : ''}`}
               />
               {onCancel && (
-                <FaTimes 
+                <FaTimes
                   size={20}
                   role="button"
                   tabIndex={0}
@@ -108,7 +153,7 @@ export const BoatForm = ({ initialData, onSubmit, onCancel, isLoading }) => {
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className={errors.name ? 'error' : ''}
+                className={`${errors.name ? 'error' : ''} text-black`}
                 required
                 placeholder="Enter boat name"
               />
@@ -122,7 +167,7 @@ export const BoatForm = ({ initialData, onSubmit, onCancel, isLoading }) => {
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                className={errors.description ? 'error' : ''}
+                className={`${errors.description ? 'error' : ''} text-black`}
                 rows={3}
                 placeholder="Enter boat description (optional)"
               />
@@ -130,7 +175,18 @@ export const BoatForm = ({ initialData, onSubmit, onCancel, isLoading }) => {
             </div>
           </div>
         </div>
-      </form>
-    </div>
+
+        <div className="form-actions">
+          <button type="submit" disabled={isLoading} className="btn-primary">
+            {isLoading ? 'Saving...' : 'Save Changes'}
+          </button>
+          {onCancel && (
+            <button type="button" onClick={onCancel} className="btn-secondary">
+              Cancel
+            </button>
+          )}
+        </div>
+      </form >
+    </div >
   );
 };
