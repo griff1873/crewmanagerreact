@@ -7,6 +7,8 @@ import { HomePage } from "./pages/home-page";
 import { CalendarPage } from "./pages/calendar-page";
 import { ProfilePage } from "./pages/profile-page";
 import { EventsPage } from "./pages/events-page";
+import { AddEventPage } from "./pages/event/add-event";
+import { EditEventPage } from "./pages/event/edit-event";
 import { CallbackPage } from "./pages/callback-page";
 import { NotFoundPage } from "./pages/not-found-page";
 import { ProfileProvider, useProfile } from "./contexts/ProfileContext";
@@ -45,6 +47,14 @@ const AuthenticatedApp = () => {
       <Route
         path="/dashboard/skipper"
         element={<AuthenticationGuard component={SkipperDashboard} />}
+      />
+      <Route
+        path="/events/new"
+        element={<AuthenticationGuard component={AddEventPage} />}
+      />
+      <Route
+        path="/events/:id/edit"
+        element={<AuthenticationGuard component={EditEventPage} />}
       />
       <Route
         path="/events"

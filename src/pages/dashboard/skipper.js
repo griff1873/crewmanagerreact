@@ -7,6 +7,7 @@ import { ConfirmationModal } from '../../components/common/confirmation-modal';
 import RequestCard from '../../components/crew/requestcard';
 import EventCard from '../../components/events/event-card';
 import { useBoatService } from '../../services/boat-service';
+import { useEventService } from '../../services/event-service';
 
 // Sample boat data
 const sampleBoats = [
@@ -122,22 +123,34 @@ export const SkipperDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('all');
   const [boats, setBoats] = useState([]);
+  const [events, setEvents] = useState([]);
   const { getBoatsByProfileId, deleteBoat } = useBoatService();
+  const { getUpcomingEvents, deleteEvent } = useEventService();
 
   useEffect(() => {
-    const fetchBoats = async () => {
+    const fetchData = async () => {
       const profileId = localStorage.getItem('user_profile_id');
       if (profileId) {
         try {
+          // Fetch Boats
           const userBoats = await getBoatsByProfileId(profileId);
           setBoats(userBoats);
+
+          // Fetch Events based on Boat IDs
+          if (userBoats && userBoats.length > 0) {
+            const boatIds = userBoats.map(b => b.id);
+            const upcomingEvents = await getUpcomingEvents(boatIds);
+            setEvents(upcomingEvents);
+          } else {
+            setEvents([]); // No boats means no events to fetch for boats
+          }
         } catch (error) {
-          console.error('Failed to fetch boats:', error);
+          console.error('Failed to fetch dashboard data:', error);
         }
       }
     };
 
-    fetchBoats();
+    fetchData();
   }, []);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -162,6 +175,29 @@ export const SkipperDashboard = () => {
     }
   };
 
+  // Event Deletion Logic
+  const [deleteEventModalOpen, setDeleteEventModalOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState(null);
+
+  const handleDeleteEventClick = (event) => {
+    setEventToDelete(event);
+    setDeleteEventModalOpen(true);
+  };
+
+  const confirmDeleteEvent = async () => {
+    if (!eventToDelete) return;
+
+    try {
+      await deleteEvent(eventToDelete.id);
+      setEvents(prev => prev.filter(e => e.id !== eventToDelete.id));
+      setDeleteEventModalOpen(false);
+      setEventToDelete(null);
+    } catch (error) {
+      console.error("Failed to delete event", error);
+      alert("Failed to delete event");
+    }
+  };
+
   const filteredBoats = boats.filter(boat => {
     const matchesSearch = boat.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (boat.description && boat.description.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -180,13 +216,29 @@ export const SkipperDashboard = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Column: Upcoming Events */}
           <div className="w-full lg:w-2/3 border-2 border-green-500 p-2 rounded">
-            <h2 className="text-2xl font-bold text-skipper-primary !pt-0 !mt-0 mb-6">
-              Upcoming Events
-            </h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-skipper-primary !pt-0 !mt-0">
+                Upcoming Events
+              </h2>
+              <Link to="/events/new" className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors !pt-0 !mt-0" title="Add New Event">
+                <FaPlus size={14} />
+              </Link>
+            </div>
             <div className="grid grid-cols-1 gap-6 h-[340px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-              {sampleEvents.map(event => (
-                <EventCard key={event.id} event={event} />
-              ))}
+              {events.length > 0 ? (
+                events.map(event => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    onEdit={(id) => navigate(`/events/${id}/edit`)}
+                    onDelete={() => handleDeleteEventClick(event)}
+                  />
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  No upcoming events needed. Click the + to create one!
+                </div>
+              )}
             </div>
           </div>
 
@@ -260,6 +312,17 @@ export const SkipperDashboard = () => {
         message={`Are you sure you want to delete ${boatToDelete?.name}? This action cannot be undone.`}
         onConfirm={confirmDeleteBoat}
         onCancel={() => setDeleteModalOpen(false)}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDanger={true}
+      />
+
+      <ConfirmationModal
+        isOpen={deleteEventModalOpen}
+        title="Delete Event"
+        message={`Are you sure you want to delete ${eventToDelete?.name}? This action cannot be undone.`}
+        onConfirm={confirmDeleteEvent}
+        onCancel={() => setDeleteEventModalOpen(false)}
         confirmText="Delete"
         cancelText="Cancel"
         isDanger={true}
